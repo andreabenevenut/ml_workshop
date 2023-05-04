@@ -1,5 +1,5 @@
 # <component>
-name: train_credit_defaults_model
+name: train_credit_defaults_model_andrea
 display_name: Train Credit Defaults Model
 # version: 1 # Not specifying a version will automatically update the version
 type: command
