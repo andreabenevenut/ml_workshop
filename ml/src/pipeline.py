@@ -1,3 +1,8 @@
+import argparse
+parser = argparse.ArgumentParser()
+parser.add_argument("--env", type=str, help="environment (dev, uat, prd)")
+args = parser.parse_args()
+
 from azure.ai.ml import MLClient
 from azure.identity import DefaultAzureCredential, InteractiveBrowserCredential
 import os
@@ -28,7 +33,7 @@ from azure.ai.ml.constants import AssetTypes
 web_path = "https://archive.ics.uci.edu/ml/machine-learning-databases/00350/default%20of%20credit%20card%20clients.xls"
 
 credit_data = Data(
-    name="creditcard_defaults_andrea",
+    name=f"creditcard_defaults_andrea_{args.env}",
     path=web_path,
     type=AssetTypes.URI_FILE,
     description="Dataset for credit card defaults",
@@ -54,7 +59,7 @@ print( f"You already have a cluster named {cpu_compute_target}, we'll reuse it a
 
 # Environment
 from azure.ai.ml.entities import Environment
-custom_env_name = "aml-scikit-learn_andrea"
+custom_env_name = f"aml-scikit-learn_andrea_{args.env}"
 
 dependencies_dir = "./dependencies"
 pipeline_job_env = Environment(
@@ -76,7 +81,7 @@ from azure.ai.ml import Input, Output
 
 data_prep_src_dir = "./components/data_prep"
 data_prep_component = command(
-    name="data_prep_credit_defaults_andrea",
+    name=f"data_prep_credit_defaults_andrea_{args.env}",
     display_name="Data preparation for training",
     description="reads a .xl input, split the input to train and test",
     inputs={
@@ -140,7 +145,7 @@ def credit_defaults_pipeline(
         "pipeline_job_test_data": data_prep_job.outputs.test_data,
     }
 
-registered_model_name = "credit_defaults_model_andrea"
+registered_model_name = f"credit_defaults_model_andrea_{args.env}"
 pipeline = credit_defaults_pipeline(
     pipeline_job_data_input=Input(type="uri_file", path=credit_data.path),
     pipeline_job_test_train_ratio=0.25,
@@ -154,6 +159,6 @@ import webbrowser
 
 pipeline_job = ml_client.jobs.create_or_update(
     pipeline,
-    experiment_name="e2e_registered_components_andrea",
+    experiment_name=f"e2e_registered_components_andrea_{args.env}",
 )
 #webbrowser.open(pipeline_job.studio_url)
